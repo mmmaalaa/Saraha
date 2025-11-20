@@ -1,10 +1,9 @@
 import { Router } from "express";
-import { register, login } from "./user.services.js";
+import { getUserProfile } from "./user.services.js";
+import { authentication } from "../../middleware/auth.js";
 
 const router = Router();
-
-router.post("/register", register);
-
-router.post("/login", login);
+router.get("/profile", authentication, getUserProfile);
 
 export default router;
+
