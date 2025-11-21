@@ -1,6 +1,7 @@
 import UserModel from "../../DB/models/user.model.js";
 import asyncHandler from "../../middleware/asyncHandler.js";
 import appError from "../../utils/appError.js";
+import emailEmitter from "../../utils/emailEvent.js";
 import { comparePassword } from "../../utils/hashing.js";
 import sendEmail, { subject } from "../../utils/sendEmail.js";
 import sendEmailTemplate from "../../utils/sendEmailTemplate.js";
@@ -21,14 +22,7 @@ export const register = asyncHandler(async (req, res, next) => {
   }
 
   const user = await UserModel.create({ username, email, password });
-  const token = generateToken({ userId: user._id });
-  
-  const link = `http://localhost:3000/api/v1/auth/activateAccount/${token}`;
-  await sendEmail(
-    email,
-    subject.activateAccount,
-    sendEmailTemplate(username, link)
-  );
+  emailEmitter.emit("sendEmail", user);
 
   res.status(201).json({
     status: "success",
@@ -48,6 +42,13 @@ export const login = asyncHandler(async (req, res, next) => {
     const error = new appError().create("Invalid email or password", 401);
     return next(error);
   }
+  if (!user.isActive) {
+    const error = new appError().create(
+      "please go activate your account first",
+      401
+    );
+    return next(error);
+  }
   const token = generateToken({ userId: user._id });
   setAuthCookie(res, token);
   return res.status(200).json({
@@ -58,15 +59,38 @@ export const login = asyncHandler(async (req, res, next) => {
 });
 
 export const activateAccount = asyncHandler(async (req, res, next) => {
-  console.log(req.params)
-  // const token = req.params;
-  // console.log(token);
-  // const { userId } = verifyToken(token);
-  // console.log(userId);
-  // const user = await UserModel.findById(userId).select("-password -__v");
-  // user.isActive = true;
-  // await user.save();
-  // return res
-  //   .status(200)
-  //   .json({ success: true, message: "user activate successfully" });
+  const { token } = req.params;
+
+  const { userId } = verifyToken(token);
+  const user = await UserModel.findById(userId);
+  user.isActive = true;
+  await user.save();
+  return res
+    .status(200)
+    .json({ success: true, message: "user activate successfully" });
+});
+
+export const reSendEmail = asyncHandler(async (req, res, next) => {
+  const { email } = req.body;
+
+  // Find user by email
+  const user = await UserModel.findOne({ email });
+
+  if (!user) {
+    const error = new appError().create("User not found", 404);
+    return next(error);
+  }
+
+  // Check if account is already active
+  if (user.isActive) {
+    const error = new appError().create("Account is already activated", 400);
+    return next(error);
+  }
+
+  emailEmitter.emit("sendEmail", user);
+
+  return res.status(200).json({
+    status: "success",
+    message: "Activation email has been resent successfully",
+  });
 });

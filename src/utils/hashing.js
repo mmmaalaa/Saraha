@@ -4,5 +4,5 @@ export const hashPassword = (password, salt = +process.env.SALT_ROUNDS) => {
 };
 
 export const comparePassword = (password, hashedPassword) => {
-  return  bcrypt.compareSync(password, hashedPassword);
-}
+  return bcrypt.compareSync(password, hashedPassword);
+};
