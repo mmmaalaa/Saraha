@@ -12,7 +12,12 @@ const messageSchema = new Schema(
       ref: "User",
       required: true,
     },
-    content: { type: String, required: true },
+    content: {
+      type: String,
+      required: true,
+      minlength: [5, "message must at least 5 character"],
+      maxlength: [500, "message must at most 500 character"],
+    },
   },
   { timestamps: true }
 );

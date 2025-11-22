@@ -1,4 +1,4 @@
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 
 // Rate limiter for resend email route
 export const resendEmailLimiter = rateLimit({
@@ -11,10 +11,11 @@ export const resendEmailLimiter = rateLimit({
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   // Use email from request body as key (if available), otherwise use IP
-  keyGenerator: (req) => {
-    const email = req.body.email || "no-email";
-  return `${email}-${req.ip}`;
-  },
+  // keyGenerator: (req) => {
+  //   const email = req.body.email || "no-email";
+  //   const ip = ipKeyGenerator(req); // Properly handle IPv6 addresses
+  //   return `${email}-${ip}`;
+  // },
 });
 
 // General rate limiter for auth routes
