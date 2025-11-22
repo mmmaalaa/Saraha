@@ -6,7 +6,7 @@ import sendEmailTemplate from "./sendEmailTemplate.js";
 const emailEmitter = new EventEmitter();
 emailEmitter.on("sendEmail", async (user) => {
   const token = generateToken({ userId: user._id });
-  const link = `http://localhost:3000/api/v1/auth/activateAccount/${token}`;
+  const link = `${process.env.CLIENT_URL}/auth/activateAccount/${token}`;
   await sendEmail(
     user.email,
     subject.activateAccount,

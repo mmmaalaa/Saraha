@@ -41,7 +41,7 @@ export const updateEmail = asyncHandler(async (req, res, next) => {
   user.emailToken = token;
   user.pendingEmailExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
   await user.save();
-  const link = `http://localhost:3000/api/v1/user/activateEmail/${token}`;
+  const link = `${process.env.CLIENT_URL}user/activateEmail/${token}`;
   await sendEmail(
     newEmail,
     "Confir your new email",
