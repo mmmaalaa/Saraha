@@ -3,7 +3,9 @@ import authRouter from "./modules/auth/auth.controller.js";
 import userRouter from "./modules/user/user.controller.js";
 import messageRouter from "./modules/messages/message.controller.js"
 import cookieParser from "cookie-parser";
+import cors from "cors";
 const bootstrap = async (app, express) => {
+  app.use(cors())
   app.use(express.json());
   app.use(cookieParser())
   await connectDB();
