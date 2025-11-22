@@ -263,13 +263,7 @@ Authorization: Bearer <your-jwt-token>
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📄 License
 
-ISC
-
-## 👤 Author
-
-Your Name
 
 ---
 
